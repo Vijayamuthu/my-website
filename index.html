@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITI Student Registration</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #dbeafe, #eff6ff);
+}
+
+.container {
+    max-width: 450px;
+    margin: auto;
+    background: white;
+    padding: 22px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px #999;
+}
+
+.header {
+    text-align: center;
+    color: #123b72;
+}
+
+.logo-box {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.logo-box.locked {
+    cursor: default;
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 2px solid #123b72;
+    border-radius: 50%;
+    padding: 3px;
+    background-color: #f0f4f8;
+}
+
+.logo-hint {
+    display: block;
+    font-size: 11px;
+    color: #555;
+    margin-top: 4px;
+}
+
+.header h2 {
+    font-size: 21px;
+    margin-bottom: 5px;
+}
+
+.header p {
+    font-weight: bold;
+    color: #d97706;
+}
+
+hr {
+    border: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+label {
+    display: block;
+    margin-top: 13px;
+    font-weight: bold;
+    color: #333;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border: 1px solid #aaa;
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+.photo {
+    text-align: center;
+    margin: 15px 0;
+}
+
+#preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid #123b72;
+    object-fit: cover;
+    display: block;
+    margin: 10px auto;
+    background-color: #eee;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 22px;
+    background: #123b72;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:active {
+    background: #d97706;
+}
+
+.footer {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 20px;
+    color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<!-- College Logo (Locked permanently after first upload) -->
+<div class="logo-box" id="logoBox" onclick="handleLogoClick()">
+    <img id="logoPreview" 
+         src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23e2e8f0'/><text x='50%' y='50%' font-size='12' text-anchor='middle' fill='%23123b72' dy='.3em'>Tap for Logo</text></svg>" 
+         class="logo" 
+         alt="College Logo">
+    <span class="logo-hint" id="logoHint">(ஒருமுறை மட்டும் Logo upload செய்யவும்)</span>
+</div>
+<input type="file" id="logoInput" accept="image/*" style="display:none;" onchange="lockLogo(event)">
+
+<h2>Government Industrial Training Institute</h2>
+<p>TIRUNELVELI</p>
+<h3>STUDENT REGISTRATION FORM</h3>
+
+</div>
+
+<hr>
+
+<form id="studentForm">
+
+<!-- Student Photo -->
+<div class="photo">
+<label>Upload Student Photo</label>
+
+<img id="preview"
+src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='120' height='120' fill='%23cbd5e1'/><text x='50%' y='50%' font-size='14' text-anchor='middle' fill='%23475569' dy='.3em'>120 x 120</text></svg>"
+alt="Student Photo">
+
+<input type="file"
+id="photo"
+accept="image/*"
+onchange="loadStudentPhoto(event)"
+required>
+</div>
+
+<label>Student Name</label>
+<input type="text" name="studentName" placeholder="Enter Student Name" required>
+
+<label>Age</label>
+<input type="number" name="age" placeholder="Enter Age" min="1" max="100" required>
+
+<label>Qualification</label>
+<select name="qualification" required>
+<option value="">Select Qualification</option>
+<option>10th Pass</option>
+<option>12th Pass</option>
+<option>ITI</option>
+<option>Diploma</option>
+<option>Degree</option>
+<option>Other</option>
+</select>
+
+<label>Contact Number</label>
+<input type="tel" name="contact" placeholder="Enter Mobile Number" pattern="[0-9]{10}" maxlength="10" required>
+
+<label>Working Experience (in years)</label>
+<input type="number" name="experience" placeholder="Enter Experience" min="0" step="0.5" required>
+
+<label>Address</label>
+<textarea name="address" rows="4" placeholder="Enter Full Address" required></textarea>
+
+<button type="submit">SUBMIT</button>
+
+</form>
+
+<div class="footer">
+Government Industrial Training Institute, Tirunelveli
+</div>
+
+</div>
+
+<script>
+const LOGO_STORAGE_KEY = "iti_tirunelveli_locked_logo";
+
+// Page திறக்கும்போது ஏற்கனவே Logo சேமிக்கப்பட்டிருந்தால் அதைக் காட்டி Lock செய்யும்
+window.addEventListener("DOMContentLoaded", function() {
+    const savedLogo = localStorage.getItem(LOGO_STORAGE_KEY);
+    if (savedLogo) {
+        applyLockedLogo(savedLogo);
+    }
+});
+
+// Logo மீது கிளிக் செய்யும்போது Lock ஆகி இருந்தால் மாற்ற அனுமதிக்காது
+function handleLogoClick() {
+    if (localStorage.getItem(LOGO_STORAGE_KEY)) {
+        alert("Logo ஏற்கனவே Lock செய்யப்பட்டுவிட்டது. இதை மாற்ற முடியாது!");
+        return;
+    }
+    document.getElementById("logoInput").click();
+}
+
+// முதல்முறை Logo Upload செய்யும்போது சேமித்து Lock செய்யும்
+function lockLogo(event) {
+    if (localStorage.getItem(LOGO_STORAGE_KEY)) {
+        alert("Logo ஏற்கனவே Lock செய்யப்பட்டுவிட்டது!");
+        return;
+    }
+
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            try {
+                localStorage.setItem(LOGO_STORAGE_KEY, base64Image);
+                applyLockedLogo(base64Image);
+                alert("Logo வெற்றிகரமாக சேமிக்கப்பட்டு Lock செய்யப்பட்டது!");
+            } catch (err) {
+                alert("Logo அளவு மிகப் பெரியதாக உள்ளது. சிறிய படத்தைத் தேர்ந்தெடுக்கவும்.");
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function applyLockedLogo(imageSrc) {
+    document.getElementById("logoPreview").src = imageSrc;
+    document.getElementById("logoBox").classList.add("locked");
+    document.getElementById("logoHint").textContent = "🔒 Logo Locked";
+    document.getElementById("logoInput").disabled = true;
+}
+
+// Student Photo Preview மட்டும் எப்போதும் மாற்றக்கூடியதாக இருக்கும்
+function loadStudentPhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById("preview").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+document.getElementById("studentForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    alert("Student Details Submitted Successfully!");
+});
+</script>
+
+</body>
+</html>
